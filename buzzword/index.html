@@ -45,11 +45,9 @@
 
     /* ── Header ── */
     .site-header {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      margin-bottom: 3.5rem;
-      border-bottom: 0.5px solid var(--border);
       padding-bottom: 1rem;
     }
     .site-name {
@@ -60,6 +58,7 @@
       letter-spacing: 0px;
       color: var(--text);
       text-decoration: none;
+      justify-self: end;
     }
     .site-tag {
       font-family: var(--font-body);
@@ -68,6 +67,64 @@
       color: var(--text);
       text-transform: uppercase;
       letter-spacing: 2px;
+      justify-self: center;
+    }
+
+    /* ── Hamburger menu (accordion) ── */
+    .menu-btn {
+      position: relative;
+      width: 22px;
+      height: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      justify-self: start;
+    }
+    .menu-btn span {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--text);
+      transition: transform 0.25s ease, top 0.25s ease;
+    }
+    .menu-btn span:first-child { top: 2px; }
+    .menu-btn span:last-child { top: 12px; }
+    .menu-btn.open span { height: 1.8px; }
+    .menu-btn.open span:first-child { top: 7px; transform: rotate(45deg); }
+    .menu-btn.open span:last-child { top: 7px; transform: rotate(-45deg); }
+    .menu-accordion {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+    .menu-accordion.open { max-height: 220px; }
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 1rem;
+    }
+    .menu-list a {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      padding: 0.5rem 0;
+    }
+    .menu-list a.active {
+      color: var(--text);
+      opacity: 0.35;
+      pointer-events: none;
+      cursor: default;
+    }
+
+    .header-divider {
+      border-top: 0.5px solid var(--border);
+      margin-bottom: 3.5rem;
     }
 
     /* ── Game header ── */
@@ -400,9 +457,23 @@
 <div class="page">
 
   <header class="site-header">
-    <span class="site-tag">Brain Game 02</span>
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+    </button>
+    <span class="site-tag">Game 02</span>
     <a href="https://www.sabi.london" class="site-name">S A B I</a>
   </header>
+
+  <nav class="menu-accordion" id="menuAccordion">
+    <div class="menu-list">
+      <a href="https://sabi.london/about">About</a>
+      <a href="https://bio.site/sabi__ldn" target="_blank" rel="noopener">Services</a>
+      <a class="active" aria-current="page" aria-disabled="true">Play</a>
+    </div>
+  </nav>
+
+  <div class="header-divider"></div>
 
   <main>
     <p class="game-label">Buzzword</p>
@@ -477,6 +548,17 @@
   
 </div>
 
+<script>
+  const menuBtn = document.getElementById('menuBtn');
+  const menuAccordion = document.getElementById('menuAccordion');
+
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = menuAccordion.classList.toggle('open');
+    menuBtn.classList.toggle('open', isOpen);
+    menuBtn.setAttribute('aria-expanded', isOpen);
+  });
+</script>
 <script>
 const ACRONYMS = {"AOV": {"expanded": "Average Order Value", "def": "The average amount of money a customer spends each time they complete a purchase."}, "CTR": {"expanded": "Click-Through Rate", "def": "The percentage of people who see your ad and actually click on it."}, "EMV": {"expanded": "Earned Media Value", "def": "An estimation of the monetary equivalent of unpaid, organic media exposure – such as influencer mentions, social media shares, press coverage, reviews, and word-of-mouth recommendations."}, "ROI": {"expanded": "Return on Investment", "def": "A percentage calculation used to measure the profitability of an investment or budget. To calculate it, divide net profit by the total cost of the investment."}, "KPI": {"expanded": "Key Performance Indicator", "def": "A measurable value that demonstrates how effectively a company is achieving key business objectives."}, "CRM": {"expanded": "Customer Relationship Management", "def": "Software and strategies used to manage and analyze customer interactions to improve engagement, retention, and loyalty."}, "CMS": {"expanded": "Content Management System", "def": "The software that allows multiple users to create, edit, and publish digital content without needing advanced coding knowledge."}, "CTA": {"expanded": "Call to Action", "def": "A prompt that encourages users to take immediate action. For example, a button, link, or instruction."}, "CLTV": {"expanded": "Customer Lifetime Value", "def": "The total revenue or net profit expected to be generated from a single customer throughout their relationship with a business. A high estimate indicates good customer retention."}, "GTM": {"expanded": "Go-to-Market", "def": "A comprehensive, cross-functional strategy plan detailing exactly how a company will launch a new product or enter a new market."}, "NPS": {"expanded": "Net Promoter Score", "def": "A score that measures customer loyalty by asking customers a single question: “How likely are you to recommend our company to a friend or colleague on a scale of one to ten?”"}, "ICP": {"expanded": "Ideal Customer Profile", "def": "A detailed, fictitious description of the type of customer that would get the most value from your product or service."}, "USP": {"expanded": "Unique Selling Proposition", "def": "The key feature or benefit that makes your business better than its competitors."}, "UGC": {"expanded": "User-Generated Content", "def": "Any content – such as reviews, testimonials, or social media posts – created by your customers rather than your brand."}, "CPM": {"expanded": "Cost per Mille", "def": "A common pricing model where advertisers pay a set price for every 1000 impressions their ad receives. This is often used for brand awareness campaigns where visibility is a higher priority than clicks."}, "B2B": {"expanded": "Business-to-Business", "def": "Marketing products or services to other companies."}, "B2C": {"expanded": "Business-to-Consumer", "def": "Marketing products or services to everyday consumers."}, "D2C": {"expanded": "Direct-to-Consumer", "def": "A retail business model where a brand sells its products directly to the end customer, bypassing third-party wholesalers, distributors, or retailers."}, "SEO": {"expanded": "Search Engine Optimisation", "def": "The process of improving your website – its content, backend development, and trust signalling – so it appears higher on search engine results pages."}, "GEO": {"expanded": "Generative Engine Optimisation", "def": "Structuring and refining digital content so it is easily understood, trusted, and cited by AI search tools."}, "CPC": {"expanded": "Cost per Click", "def": "An advertising pricing model where a digital platform hosts an ad for a brand, and the brand only pays when a user clicks the ad."}, "CPL": {"expanded": "Cost per Lead", "def": "An advertising pricing model where companies pay a platform for each lead generated by an ad, rather than impressions or clicks. A lead is a potential customer who has shown interest in your brand by voluntarily providing their contact information."}, "CPA": {"expanded": "Cost-Per-Acquisition", "def": "The cost of acquiring one paying customer, or converting a lead (when a potential customer shows active interest in your brand by voluntarily providing their contact information)."}, "CR": {"expanded": "Conversion Rate", "def": "The percentage of website users who take a desired action."}, "ESP": {"expanded": "Email Service Provider", "def": "A software platform used to create, send, automate, and manage email marketing campaigns, such as Mailchimp or Klaviyo."}, "SQL": {"expanded": "Sales Qualified Lead", "def": "A potential customer that has been evaluated and deemed ready for direct contact by a brand’s sales team because they are considered likely to make a purchase."}, "UX": {"expanded": "User Experience", "def": "The overall experience a person has when interacting with a website, app, or product, including how easy, efficient, and enjoyable it is to use."}, "UI": {"expanded": "User Interface", "def": "The visual elements of a digital product – such as buttons, menus, colours, and layouts – that users interact with."}, "CX": {"expanded": "Customer Experience", "def": "The overall perception customers have of your brand based on every interaction they have with your business before, during, and after a purchase."}, "SWOT": {"expanded": "Strengths Weaknesses Opportunities Threats", "def": "A strategic planning method used by businesses to assess internal capabilities and external market factors."}, "SKU": {"expanded": "Stock Keeping Unit", "def": "A unique alphanumeric code that retailers and businesses assign to products to internally track inventory, monitor sales, and manage stock levels."}, "OMO": {"expanded": "Online-Merge-Offline", "def": "A business and marketing strategy that erases the boundaries between digital and physical retail."}, "SOV": {"expanded": "Share of Voice", "def": "A measure of your brand’s visibility and overall presence in the market compared to your competitors."}, "VOC": {"expanded": "Voice of Customer", "def": "Feedback and insights gathered directly from customers to understand their needs and perceptions."}, "GDPR": {"expanded": "General Data Protection Regulation", "def": "A comprehensive data privacy and security law created by the European Union. It applies to businesses anywhere in the world that collect or target data from customers or clients who are EU residents."}};
 
