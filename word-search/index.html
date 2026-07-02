@@ -536,11 +536,24 @@ function makeGrid() {
     Array(COLS).fill('')
   );
 }
-function canPlace(g, word, r, c, dr, dc) {
+function canPlace(g, word, r, c, dr, dc, placedList) {
   for (let i = 0; i < word.length; i++) {
     const nr = r + dr*i, nc = c + dc*i;
     if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) return false;
     if (g[nr][nc] && g[nr][nc] !== word[i]) return false;
+  }
+  // Prevent same-orientation end-to-end adjacency (e.g. INVENTIVE+ESSENTIAL
+  // merging into INVENTIVESSENTIAL). Only checks words sharing this word's
+  // direction; crossing words in the other orientation are unaffected.
+  if (placedList) {
+    const beforeR = r - dr, beforeC = c - dc;
+    const afterR = r + dr*word.length, afterC = c + dc*word.length;
+    for (const p of placedList) {
+      if (p.dr !== dr || p.dc !== dc) continue;
+      const pEndR = p.r + p.dr*(p.word.length-1), pEndC = p.c + p.dc*(p.word.length-1);
+      if (pEndR === beforeR && pEndC === beforeC) return false;
+      if (p.r === afterR && p.c === afterC) return false;
+    }
   }
   return true;
 }
@@ -564,9 +577,9 @@ function buildPuzzle() {
       const [dr,dc] = dirs[Math.floor(Math.random()*dirs.length)];
       const r = Math.floor(Math.random() * ROWS);
       const c = Math.floor(Math.random() * COLS);
-      if (canPlace(grid, word, r, c, dr, dc)) {
+      if (canPlace(grid, word, r, c, dr, dc, placed)) {
         const cells = placeWord(grid, word, r, c, dr, dc);
-        placed.push({word, cells}); done = true;
+        placed.push({word, cells, r, c, dr, dc}); done = true;
       }
     }
   }
